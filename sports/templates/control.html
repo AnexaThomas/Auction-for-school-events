@@ -1,0 +1,280 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --grad-1: #0d0d3f;
+            --grad-2: #002c4a;
+            --grad-3: #005e60;
+            --neon: #00ffd5;
+            --glass: rgba(255, 255, 255, 0.08);
+            --blur: 15px;
+            --shadow: 0 8px 20px rgba(0, 0, 0, .55);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            color: #fff;
+            background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
+            background-size: 600% 600%;
+            animation: bgMove 16s ease infinite;
+            display: flex;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { background-position: 0 0; }
+            50% { background-position: 100% 100%; }
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(var(--blur));
+            height: 100vh;
+            position: fixed;
+            padding: 2rem 1rem;
+            border-right: 1px solid rgba(0, 255, 213, 0.2);
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--neon);
+            text-shadow: 0 0 8px rgba(0, 255, 213, .8);
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar ul li {
+            margin: 1rem 0;
+        }
+
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .sidebar ul li a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar ul li a:hover {
+            background: rgba(0, 255, 213, 0.15);
+            box-shadow: 0 0 10px rgba(0, 255, 213, 0.3);
+            transform: translateX(5px);
+        }
+
+        .sidebar ul li a.active {
+            background: rgba(0, 255, 213, 0.25);
+            border-left: 3px solid var(--neon);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 2rem;
+        }
+
+        .dashboard-header {
+            font-size: 2rem;
+            color: var(--neon);
+            margin-bottom: 2rem;
+            text-shadow: 0 0 8px rgba(0, 255, 213, .8);
+        }
+
+        .form-container {
+            background: var(--glass);
+            backdrop-filter: blur(var(--blur));
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid rgba(0, 255, 213, 0.2);
+            animation: fadeUp 0.6s cubic-bezier(.4, 1.6, .6, .95);
+        }
+
+        @keyframes fadeUp {
+            from { transform: scale(.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .form-container h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--neon);
+            text-shadow: 0 0 6px rgba(0, 255, 213, .6);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--neon);
+        }
+
+        .form-container input[type="text"],
+        .form-container input[type="number"],
+        .form-container input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: 1px solid rgba(0, 255, 213, 0.3);
+            transition: all 0.3s;
+        }
+
+        .form-container input[type="text"]:focus,
+        .form-container input[type="number"]:focus {
+            outline: none;
+            border-color: var(--neon);
+            box-shadow: 0 0 10px rgba(0, 255, 213, 0.5);
+        }
+
+        .form-container input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--neon);
+            color: #000;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-container input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 255, 213, 0.8);
+        }
+
+        .message {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            border: 1px solid #ff6b6b;
+        }
+
+        .success-message {
+            color: var(--neon);
+            background: rgba(0, 255, 213, 0.1);
+            border: 1px solid var(--neon);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 220px;
+                padding: 1.5rem 0.5rem;
+            }
+            .main-content {
+                margin-left: 220px;
+                width: calc(100% - 220px);
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+            }
+            .form-container {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h2>Admin Dashboard</h2>
+        <ul>
+            <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="{% url 'RC' %}"><i class="fas fa-users"></i> Royal Challangers</a></li>
+            <li><a href="{% url 'SK' %}"><i class="fas fa-users"></i>Super Kings</a></li>
+             <li><a href="{% url 'KR' %}"><i class="fas fa-users"></i> Knight Riders</a></li>
+             <li><a href="{% url 'DD' %}"><i class="fas fa-users"></i> Daredevils</a></li>
+
+            <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+        </ul>
+    </div>
+
+    <div class="main-content">
+        <h1 class="dashboard-header">Add New Player</h1>
+
+        <div class="form-container">
+            {% if messages %}
+                <div class="message {% if message.tags == 'success' %}success-message{% endif %}">
+                    {% for message in messages %}
+                        {{ message }}
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Player Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter player name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">Base Price</label>
+                    <input type="number" id="price" name="price" placeholder="Enter base price" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="image">Player Image</label>
+                    <input type="file" id="image" name="image" accept="image/*" required>
+                </div>
+                
+                <input type="submit" value="Add Player">
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

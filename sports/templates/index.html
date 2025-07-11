@@ -1,0 +1,1662 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live Auction Dashboard</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+ .selected-thumb-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+/* Add these styles to your CSS section */
+.players-group-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.player-group {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.group-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background: rgba(0, 255, 213, 0.1);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--neon);
+}
+
+.group-players {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.player-details-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  font-weight: 600;
+  border-bottom: 2px solid var(--neon);
+  margin-bottom: 0.5rem;
+}
+
+.header-name, .header-price {
+  color: var(--neon);
+}
+
+.player-detail-item {
+  transition: all 0.3s ease;
+}
+
+.player-detail-item:hover {
+  background: rgba(0, 255, 213, 0.1);
+  transform: translateX(5px);
+}
+.player-detail-item:last-child {
+  border-bottom: none;
+}
+
+.player-detail-name {
+  font-weight: 500;
+  flex: 2;
+}
+
+.player-detail-price {
+  color: var(--neon);
+  font-weight: 600;
+  flex: 1;
+  text-align: right;
+}
+
+.player-detail-image {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.player-detail-info {
+  display: flex;
+  align-items: center;
+  flex: 2;
+}
+/* Add this to your style section */
+.show-players-btn {
+  background: var(--neon);
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.show-players-btn:hover {
+  background: #00e6c3;
+  transform: translateY(-2px);
+}
+.team-players-list::-webkit-scrollbar {
+  width: 6px;
+}
+.team-players-list::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+
+.team-players-list::-webkit-scrollbar-thumb {
+  background-color: var(--neon);
+  border-radius: 3px;
+}
+
+.team-players-list {
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--neon) rgba(0,0,0,0.1);
+}
+.modal-body-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 1.5rem;
+}
+.player-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.player-item:last-child {
+  border-bottom: none;
+}
+
+.player-name {
+  font-weight: 500;
+}
+
+.player-price {
+  color: var(--neon);
+  font-weight: 600;
+}
+.team-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  color: var(--neon);
+  font-weight: 700;
+  font-size: 1.5rem;
+  text-shadow: 0 0 5px #000;
+  text-transform: uppercase;
+  border-radius: 13px; /* slightly less than thumb radius */
+}
+/* If you want to make the overlay more stylish */
+.team-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(2px);
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 15px rgba(0, 255, 213, 0.5) inset;
+}
+    @keyframes confettiFall {
+  0% {
+    transform: translateY(-100px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(360deg) scale(0);
+    opacity: 0;
+  }
+}
+    /* -----------------------------------------------------------------
+      Root palette, global reset & background animation
+    -----------------------------------------------------------------*/
+    :root {
+      --grad-1: #0d0d3f;
+      --grad-2: #002c4a;
+      --grad-3: #005e60;
+      --neon:   #00ffd5;
+      --glass:  rgba(255, 255, 255, 0.08);
+      --blur:   15px;
+      --shadow: 0 8px 20px rgba(0, 0, 0, .55);
+
+      --team-sk:#ffd700;      /* yellow   */
+      --team-kr:#8a2be2;      /* violet   */
+      --team-dd:#1e90ff;      /* blue     */
+      --team-rc:#ff4136;      /* red      */
+      --team-close:#7b7b7b;
+
+    }
+
+  
+
+    @media (max-width: 480px) {
+  .add-btn {
+    padding: 0.5rem 0.3rem;
+    font-size: 0.8rem;
+  }
+}
+    .add-btn.team-SK{background:var(--team-sk);color:#000;}
+    .add-btn.team-KR{background:var(--team-kr);color:#fff;}
+    .add-btn.team-DD{background:var(--team-dd);color:#fff;}
+    .add-btn.team-RC{background:var(--team-rc);color:#fff;}
+    .add-btn.team-close{background:var(--team-close);color:#796d6d;}
+
+.add-btn.team-close {
+  background: #ff5555 !important;
+  color: white !important;
+  box-shadow: 0 0 8px rgba(255, 85, 85, 0.4) !important;
+}
+.add-btn.team-close:hover {
+  background: #ff3333 !important;
+  box-shadow: 0 0 12px rgba(255, 85, 85, 0.8) !important;
+}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+ body {
+  font-family: 'Poppins', sans-serif;
+  min-height: 100vh;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #fff;
+  background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
+  background-size: 600% 600%;
+  animation: bgMove 16s ease infinite;
+  overflow-y: auto; /* Ensure body can scroll */
+}
+
+    @keyframes bgMove {
+      0%, 100% { background-position: 0 0; }
+      50%       { background-position: 100% 100%; }
+    }
+    /* Add this to your style section */
+@keyframes sparkleFade {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translate(0, 0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) translate(random movement);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) translate(10px, 10px);
+  }
+}
+
+.sparkle {
+  animation: sparkleFade 0.3s ease-out forwards;
+  pointer-events: none;
+}
+
+    h1 {
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--neon);
+      margin-bottom: 2rem;
+      text-shadow: 0 0 8px rgba(0, 255, 213, .8);
+    }
+
+    /* -----------------------------------------------------------------
+      TEAM CARDS
+    -----------------------------------------------------------------*/
+    .team-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: center;
+      max-width: 1240px;
+    }
+
+    .card {
+      width: 260px;
+      min-width: 240px;
+      padding: 1.2rem;
+      border-radius: 20px;
+      position: relative;
+      background: var(--glass);
+      backdrop-filter: blur(var(--blur));
+      box-shadow: var(--shadow);
+      transition: .5s transform;
+      animation: fadeUp .6s cubic-bezier(.4, 1.6, .6, .95);
+    }
+
+    @keyframes fadeUp {
+      from { transform: scale(.8); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .card:hover { transform: translateY(-10px) scale(1.03); }
+
+    .card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: 1rem;
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      color: var(--neon);
+      text-shadow: 0 0 6px rgba(0, 255, 213, .6);
+    }
+
+    .card p { font-size: .9rem; margin: .25rem 0; }
+    .amount   { color: #d0d0d0; }
+
+    /* -----------------------------------------------------------------
+      PLAYER GALLERY
+    -----------------------------------------------------------------*/
+    .gallery {
+      margin: 3rem auto 0;
+      display: flex;
+      gap: 1.2rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 1240px;
+    }
+
+    .player-thumb {
+      width: 110px;
+      height: 110px;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      border: 3px solid transparent;
+      transition: .3s border;
+    }
+
+    .player-thumb:hover { border-color: var(--neon); }
+    .player-thumb img   { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Selected / sold state */
+    .player-thumb.selected {
+      border-color: var(--neon) !important;
+      box-shadow: 0 0 15px rgba(0, 255, 213, 0.7);
+    }
+
+    .player-thumb.selected::after {
+      content: attr(data-team);
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--neon);
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-shadow: 0 0 5px #000;
+      text-transform: uppercase;
+    }
+
+    .player-thumb.disabled { opacity: .6; cursor: not-allowed; filter: grayscale(50%); }
+
+    /* -----------------------------------------------------------------
+      MODAL
+    -----------------------------------------------------------------*/
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        overflow-y: auto;
+        }
+
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-content {
+  max-height: 90vh; /* Limit height and enable scrolling */
+  overflow-y: auto; /* Enable scrolling for modal content */
+  background: rgba(0, 0, 0, 0.9);
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 20px rgba(0, 255, 213, 0.5);
+}
+  /* Adjust modal layout */
+  .modal-header {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    z-index: 10;
+  }
+ .modal-close-btn {
+    order: -1; /* Move close button to left */
+    margin-right: auto; /* Push other content to right */
+    margin-left: 0;
+  }
+
+.modal-close-btn:hover {
+  background: #ff3333;
+}
+
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Player display (left) */
+.player-display {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem;
+}
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .player-display {
+    height: 100%;
+    overflow: auto;
+  }
+.team-funds-sidebar {
+  flex: 1;
+  margin-top: 0;
+  background: var(--glass);
+  backdrop-filter: blur(var(--blur));
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  max-height: 400px;
+  overflow-y: auto;
+}
+  .modal-body-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    height: 100%;
+  }
+
+
+
+  .team-funds-sidebar {
+    height: 100%;
+    overflow: auto;
+  }
+
+
+#modalImg {
+  max-width: 300px;
+  max-height: 250px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 15px rgba(0, 255, 213, 0.3);
+}
+
+/* Bid amount styling */
+#bidAmount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--neon);
+  text-shadow: 0 0 8px rgba(0, 255, 213, 0.6);
+}
+
+#modalBasePrice {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #ccc;
+}
+  
+    .team-funds-sidebar h3 {
+      color: var(--neon);
+      margin-bottom: 1rem;
+      text-align: center;
+      font-size: 1.2rem;
+      position: sticky;
+      top: 0;
+      background: rgba(0, 0, 0, 0.5);
+      padding: .4rem;
+      border-radius: 8px;
+    }
+
+    .team-fund {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .6rem;
+      padding: .6rem .8rem;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, .3);
+      transition: all .3s ease;
+      opacity: 0;
+      transform: translateX(20px);
+      animation: slideIn .4s ease-out forwards;
+    }
+
+    .team-name   { font-weight: 600; color: #fff; font-size: .85rem; }
+    .team-amount {
+      color: var(--neon);
+      font-weight: 700;
+      font-size: .85rem;
+      background: rgba(0, 255, 213, .1);
+      padding: .2rem .5rem;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 255, 213, .3);
+    }
+
+    .team-fund:hover {
+      background: rgba(0, 255, 213, .1);
+      border-left: 3px solid var(--neon);
+      transform: translateX(5px);
+    }
+
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+    /* -----------------------------------------------------------------
+      Bidding controls
+    -----------------------------------------------------------------*/
+    .bid-box {
+      display: flex;
+      gap: .8rem;
+      align-items: center;
+      margin: 1rem 0;
+      font-size: 1.2rem;
+      font-weight: 700;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    #bidAmount {
+      min-width: 120px;
+      text-align: center;
+      color: var(--neon);
+      text-shadow: 0 0 5px rgba(0, 255, 213, .8);
+    }
+
+    .bid-btn {
+      background: var(--neon);
+      color: #000;
+      border: none;
+      padding: .45rem 1rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .3s transform, .3s box-shadow;
+      font-size: .8rem;
+    }
+
+    .bid-btn:hover    { transform: translateY(-2px); box-shadow: 0 0 14px rgba(0, 255, 213, 1); }
+    .bid-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* Add‑to‑team buttons */
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  justify-content: center; /* Center the buttons horizontally */
+  flex-wrap: nowrap; /* Prevent wrapping to multiple lines */
+}
+.add-btn {
+  padding: 0.6rem 0.5rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  background: var(--neon);
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0, 255, 213, 0.4);
+  transition: 0.3s all;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  flex: 1; /* Make buttons equally distribute available space */
+  min-width: auto; /* Remove minimum width constraint */
+  text-align: center; /* Center text within buttons */
+}
+    .add-btn:hover    { transform: translateY(-2px); box-shadow: 0 0 12px rgba(0, 255, 213, .8); }
+    .add-btn:disabled { opacity: .5; cursor: not-allowed; background: #666; box-shadow: none; }
+
+    /* -----------------------------------------------------------------
+      Congratulations overlay (confetti)
+    -----------------------------------------------------------------*/
+ .congrats-effect {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+    @keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Improved congratulations content */
+.congrats-content {
+  background: rgba(0, 0, 0, 0.85);
+  padding: 2.5rem;
+  border-radius: 20px;
+  text-align: center;
+  max-width: 500px;
+  animation: scaleUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--neon);
+  box-shadow: 0 0 30px rgba(0, 255, 213, 0.5);
+  z-index: 10001;
+}
+.congrats-content h2 {
+  color: var(--neon);
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 15px rgba(0, 255, 213, 0.9);
+  animation: glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes glow {
+  from {
+    text-shadow: 0 0 10px rgba(0, 255, 213, 0.7);
+  }
+  to {
+    text-shadow: 0 0 20px rgba(0, 255, 213, 1), 0 0 30px rgba(0, 255, 213, 0.7);
+  }
+}
+
+.congrats-content p {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  line-height: 1.5;
+}
+
+/* Confetti animation */
+/* Confetti animation */
+@keyframes fall {
+  to {
+    transform: translateY(100vh) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+ /* Prevent scrolling when modal is open */
+  .modal-open {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+.add-btn.team-Close {
+  background: #ff5555;
+  color: white;
+  box-shadow: 0 0 8px rgba(255, 85, 85, 0.4);
+}
+
+.add-btn.team-Close:hover {
+  background: #ff3333;
+  box-shadow: 0 0 12px rgba(255, 85, 85, 0.8);
+}
+.confetti {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  animation: confettiFall 3s ease-in forwards;
+}
+
+    .congrats-content p { font-size: 1.2rem; margin-bottom: 1.5rem; }
+
+    @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleUp { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    /* Confetti */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: var(--neon);
+      opacity: 0;
+    }
+
+    @keyframes fall {
+      to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* -----------------------------------------------------------------
+      RESPONSIVE BREAKPOINTS
+    -----------------------------------------------------------------*/
+    @media (max-width: 768px) {
+      .modal-content { flex-direction: column; max-height: 85vh; }
+      .player-display { min-width: auto; }
+      .team-funds-sidebar { width: 100%; max-height: 220px; }
+      .player-display img { max-width: 150px; max-height: 150px; }
+    }
+
+    @media (max-width: 480px) {
+      .modal-content { width: 100%; padding: .5rem; }
+      .bid-box       { flex-direction: column; align-items: center; }
+      .increment-btn { width: 100%; }
+      .team-funds-sidebar { max-height: 180px; }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Live Auction Dashboard</h1>
+
+  <!-- ================================ TEAMS ================================ -->
+  <section class="team-grid">
+   <!-- Cutie Pie -->
+<article class="card" id="team-cute">
+  <img src="{% static 'images/red.jpg' %}" alt="Cutie Pie" />
+  <h2>Cutie Pie</h2>
+  <p class="amount">Total: ₹<span class="total">15,000,000</span></p>
+  <p class="amount">Remaining: ₹<span class="remain" id="remain-cute">15,000,000</span></p>
+ <button class="show-players-btn" data-team="Cutie Pie" onclick="window.location.href='/Sk'">Show Players</button>
+  <div class="team-players-list" id="players-cute" style="display:none;">
+    <div class="player-details-header">
+      <span class="header-name">Player</span>
+      <span class="header-price">Points</span>
+      
+  <div class="team-players-list" id="players-cute">
+    </div>
+  </div>
+</article>
+
+<!-- Black Pink Riders -->
+<article class="card" id="team-black">
+  <img src="{% static 'images/black.jpg' %}" alt="Black Pink" />
+  <h2>Black Pink</h2>
+  <p class="amount">Total: ₹<span class="total">15,000,000</span></p>
+  <p class="amount">Remaining: ₹<span class="remain" id="remain-black">15,000,000</span></p>
+ <button class="show-players-btn" data-team="Black Pink">Show Players</button>
+  <div class="team-players-list" id="players-black" style="display:none;">
+    <div class="player-details-header">
+      <span class="header-name">Player</span>
+      <span class="header-price">Points</span>
+       
+  <div class="team-players-list" id="players-cute">
+    </div>
+  </div>
+</article>
+
+<!-- Pink Pandas -->
+<article class="card" id="team-pink">
+  <img src="{% static 'images/pink.jpg' %}" alt="Pink Pandas" />
+  <h2>Pink Pandas</h2>
+  <p class="amount">Total: ₹<span class="total">15,000,000</span></p>
+  <p class="amount">Remaining: ₹<span class="remain" id="remain-pink">15,000,000</span></p>
+  <button class="show-players-btn" data-team="Pink Pandas" onclick="window.location.href='/DD'">Show Players</button>
+ <div class="team-players-list" id="players-cute" style="display:none;">
+  <div class="player-details-header">
+    <span class="header-name">Player</span>
+    <span class="header-price">Points</span>
+    
+  <div class="team-players-list" id="players-cute">
+  </div>
+  <div class="players-group-container"></div>
+</div>
+</article>
+
+<!-- Boss Babes -->
+<article class="card" id="team-boss">
+  <img src="{% static 'images/boss.jpg' %}" alt="Boss Babes" />
+  <h2>Boss Babes</h2>
+  <p class="amount">Total: ₹<span class="total">15,000,000</span></p>
+  <p class="amount">Remaining: ₹<span class="remain" id="remain-boss">15,000,000</span></p>
+    <button class="show-players-btn" data-team="Boss Babes" onclick="window.location.href='/RC'">Show Players</button>
+  <div class="team-players-list" id="players-boss" style="display:none;">
+    <div class="player-details-header">
+      <span class="header-name">Player</span>
+      <span class="header-price">Points</span>
+        
+  <div class="team-players-list" id="players-cute">
+  <div class="team-players-list" id="players-cute">
+    </div>
+  </div>
+</article>
+  </section>
+
+  <!-- ============================ PLAYER GALLERY ========================== -->
+  <h1 style="font-size: 1.6rem; margin-top: 3rem">Players</h1>
+  <div class="gallery" id="gallery">
+    {% for p in players %}
+    <div class="player-thumb" data-pid="p{{ p.id }}">
+      {% if p.team %}
+        <div class="selected-thumb-container">
+          <img src="{{ p.image.url }}" alt="{{ p.name }}" />
+          <div class="team-overlay">
+            {% if p.team == 'Cutie Pie' %}CP
+            {% elif p.team == 'Black Pink' %}BP
+            {% elif p.team == 'Pink Pandas' %}DD
+            {% elif p.team == 'Boss Babes' %}BB
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <img src="{{ p.image.url }}" alt="{{ p.name }}" />
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+
+<!-- ============================ PLAYER MODAL ============================ -->
+<div id="playerModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button class="modal-close-btn">×</button>
+      
+    </div>
+    
+    <div class="modal-body-container">
+      <!-- Player display (left side) -->
+      <div class="player-display">
+        <div class="player-image-container">
+          <img id="modalImg" src="" alt="" />
+        </div>
+        <div class="player-details">
+          <h3 id="modalName">Player</h3>
+          <p id="modalBasePrice">Base Points: ₹0</p>
+          <div class="bid-box"><span id="bidAmount">₹0</span></div>
+          <div class="bid-controls">
+          <button class="bid-btn increment-btn" data-amount="10000" disabled>+10k</button>
+          <button class="bid-btn increment-btn" data-amount="50000" disabled>+50k</button>
+          <button class="bid-btn increment-btn" data-amount="100000">+100k</button>
+          </div>
+          <div class="actions">
+            <!-- Team buttons will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Team funds (right side) -->
+      <div class="team-funds-sidebar">
+        <h3>Team Remaining Funds</h3>
+        <div id="teamFundsDisplay"><!-- populated by JS --></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Congratulations Effect Container -->
+<div id="congratsEffect" class="congrats-effect" style="display: none;">
+  <div class="congrats-content">
+    <h2>Congratulations!</h2>
+    <p id="congratsMessage"></p>
+  </div>
+</div>
+<script>
+
+let tenKclicks = 0;
+let fiftyKclicks = 0;
+const maxTenKClicks = 10;
+const maxFiftyKClicks = 5;
+/***********************  DATA  *************************/
+   const players = {
+      {% for p in players %}
+      "p{{ p.id }}": {
+        name: "{{ p.name }}",
+        price: {{ p.price }},
+        img: "{{ p.image.url }}",
+        {% if p.team %}team: "{{ p.team }}",{% endif %}
+        {% if p.final_price %}finalPrice: {{ p.final_price }},{% endif %}
+      },
+      {% endfor %}
+    };
+const teamMap = {
+      "Cutie Pie":    { id:"cute", remain:15000000 },
+      "Black Pink":  { id:"black",remain:15000000 },
+      "Pink Pandas":     { id:"pink",  remain:15000000 },
+      "Boss Babes":{id:"boss", remain:15000000 }
+    };
+
+
+/***********************  GLOBALS *************************/
+let currentBid = 0;     // current bid for open player
+let minBid     = 0;     // base price
+let currentPlayerId = null; // Track currently open player
+
+// At the top of your script, after defining teamMap
+function loadSavedFunds() {
+  const savedFunds = localStorage.getItem('teamFunds');
+  if (savedFunds) {
+    const funds = JSON.parse(savedFunds);
+    for (const team in funds) {
+      if (teamMap[team]) {
+        teamMap[team].remain = funds[team];
+        // Update the UI
+        document.getElementById(`remain-${teamMap[team].id}`).textContent = funds[team].toLocaleString();
+      }
+    }
+  }
+}
+
+/***********************  FUNDS SIDEBAR *************************/
+function updateFundsDisplay() {
+  const display = document.getElementById('teamFundsDisplay');
+  display.innerHTML = '';
+  for (const team in teamMap) {
+    const teamDiv = document.createElement('div');
+    teamDiv.className = 'team-fund';
+    teamDiv.innerHTML = `<span class="team-name">${team}</span><span class="team-amount">₹${teamMap[team].remain.toLocaleString()}</span>`;
+    display.appendChild(teamDiv);
+  }
+}
+const teamMappings = {
+  "Black Pink": "BP",
+  "Pink Pandas": "PP",
+  "Boss Babes": "BB"
+};
+
+document.querySelectorAll('.show-players-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const teamName = button.getAttribute('data-team');
+    const teamCode = teamMappings[teamName] || 'home'; // Default fallback
+    window.location.href = `/${teamCode}`;
+  });
+});
+function showQuickFlash(message) {
+  const flash = document.getElementById('quickFlash');
+  const msg = document.getElementById('flashMessage');
+  
+  // Set message
+  msg.textContent = message;
+  
+  // Show the flash
+  flash.style.display = 'block';
+  
+  // Create sparkles
+  createSparkles();
+  
+  // Hide after 1.5 seconds
+  setTimeout(() => {
+    flash.style.display = 'none';
+    // Remove all sparkles
+    document.querySelectorAll('.sparkle').forEach(el => el.remove());
+  }, 1500);
+}
+
+function createSparkles() {
+  const container = document.body;
+  const colors = ['#00ffd5', '#ff00ff', '#ffff00', '#00ffff', '#ff9900'];
+  
+  // Create 30 sparkles in random positions
+  for (let i = 0; i < 30; i++) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'sparkle';
+    
+    // Random properties
+    sparkle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    sparkle.style.left = Math.random() * 100 + 'vw';
+    sparkle.style.top = Math.random() * 100 + 'vh';
+    sparkle.style.width = (Math.random() * 10 + 5) + 'px';
+    sparkle.style.height = sparkle.style.width;
+    sparkle.style.borderRadius = '50%';
+    sparkle.style.position = 'fixed';
+    sparkle.style.zIndex = '9999';
+    sparkle.style.opacity = '0';
+    
+    // Animation
+    sparkle.style.animation = `sparkleFade ${Math.random() * 0.5 + 0.2}s ease-out forwards`;
+    
+    container.appendChild(sparkle);
+  }
+}
+
+/***********************  GALLERY INIT *************************/
+function initializeGallery() {
+  const gallery = document.getElementById('gallery');
+  
+  // Clear existing content while preserving event listeners
+  while (gallery.firstChild) {
+    gallery.removeChild(gallery.firstChild);
+  }
+
+  for (const pid in players) {
+    const pl = players[pid];
+    const div = document.createElement('div');
+    div.className = 'player-thumb';
+    div.dataset.pid = pid;
+
+    // Create image element
+    const img = document.createElement('img');
+    img.src = pl.img;
+    img.alt = pl.name;
+    img.style.pointerEvents = 'none'; // Ensure clicks go through to the div
+
+    if (pl.team) {
+      // Player is already on a team
+      div.classList.add('selected', 'disabled');
+      div.dataset.team = pl.team;
+      
+      const container = document.createElement('div');
+      container.className = 'selected-thumb-container';
+      
+      const overlay = document.createElement('div');
+      overlay.className = 'team-overlay';
+      overlay.textContent = getTeamShortName(pl.team);
+      
+      container.appendChild(img.cloneNode());
+      container.appendChild(overlay);
+      div.appendChild(container);
+    } else {
+      // Available player
+      div.appendChild(img);
+      
+      // Add click handler directly to the div
+      div.onclick = function() {
+        openModal(pid);
+      };
+    }
+    
+    gallery.appendChild(div);
+  }
+}
+// Get all buttons with class "show-players-btn"
+const buttons = document.querySelectorAll('.show-players-btn');
+
+// Add click event to each button
+buttons.forEach(button => {
+  button.addEventListener('click', function() {
+    const team = this.getAttribute('data-team');
+    let redirectPage = '';
+
+    // Determine the redirect page based on team name
+    switch (team) {
+      case 'Black Pink':
+        redirectPage = 'KR';
+        break;
+      case 'Pink Pandas':
+        redirectPage = 'DD';
+        break;
+      case 'Boss Babes':
+        redirectPage = 'RC';
+        break;
+      case 'Cutie Pie':
+        redirectPage = 'SK';
+        break;
+
+      default:
+        redirectPage = 'home'; // Fallback
+    }
+
+    // Redirect to the page
+    window.location.href = `/${redirectPage}`;
+  });
+});
+
+
+
+/***********************  MODAL OPEN *************************/
+function openModal(pid) {
+
+  tenKclicks = 0;
+  fiftyKclicks = 0;
+  console.log('Opening modal for:', pid);
+  if (!players[pid]) {
+    console.error('Player not found:', pid);
+    return;
+  }
+
+  currentPlayerId = pid;
+  const pl = players[pid];
+  const modal = document.getElementById('playerModal');
+  
+  // Initialize bid values
+  minBid = pl.price;
+  currentBid = pl.price;
+
+  // Set modal content
+  document.getElementById('modalImg').src = pl.img;
+  document.getElementById('modalName').textContent = pl.name;
+  document.getElementById('modalBasePrice').textContent = `Base Points: ₹${pl.price.toLocaleString()}`;
+  updateBidDisplay();
+
+  // Create team buttons
+// Create team buttons
+const actBox = document.querySelector('#playerModal .actions');
+actBox.innerHTML = `
+  <button class="add-btn team-SK" data-team="Cutie Pie">CP</button>
+  <button class="add-btn team-KR" data-team="Black Pink">BP</button>
+  <button class="add-btn team-DD" data-team="Pink Pandas">PP</button>
+  <button class="add-btn team-RC" data-team="Boss Babes">BB</button>
+`;
+
+  // Add team button handlers
+  document.querySelectorAll('#playerModal .actions .add-btn').forEach(btn => {
+    btn.onclick = () => addToTeam(pid, btn.dataset.team);
+  });
+
+  // Add increment button handlers
+  document.querySelectorAll('.increment-btn').forEach(btn => {
+    btn.onclick = () => changeBid(parseInt(btn.dataset.amount));
+  });
+
+  // Add close button handler
+ document.querySelector('.modal-close-btn').onclick = closeModal;
+
+  updateFundsDisplay();
+  reevalTeamButtons();
+  
+  // Show modal
+   modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden'; // Prevent body scrolling when modal is open
+   updateButtonStates();
+}
+
+function updateButtonStates() {
+  const tenKBtn = document.querySelector('.increment-btn[data-amount="10000"]');
+  const fiftyKBtn = document.querySelector('.increment-btn[data-amount="50000"]');
+  
+  if (tenKclicks >= maxTenKClicks) {
+    tenKBtn.disabled = true;
+    tenKBtn.style.opacity = 0.5;
+  } else {
+    tenKBtn.disabled = false;
+    tenKBtn.style.opacity = 1;
+  }
+  
+  if (fiftyKclicks >= maxFiftyKClicks) {
+    fiftyKBtn.disabled = true;
+    fiftyKBtn.style.opacity = 0.5;
+  } else {
+    fiftyKBtn.disabled = false;
+    fiftyKBtn.style.opacity = 1;
+  }
+}
+function loadTeamPlayers(team) {
+  fetch('/get-team-players/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      team: team
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      displayTeamPlayers(team, data.players);
+    } else {
+      console.error('Failed to load players:', data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+function displayTeamPlayers(team, players) {
+  const teamId = team.replace(/\s+/g, '-').toLowerCase();
+  const container = document.getElementById(`players-${teamId}`);
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  // Create header
+  const header = document.createElement('div');
+  header.className = 'player-details-header';
+  header.innerHTML = `
+    <span class="header-name">Player</span>
+    <span class="header-price">Price</span>
+  `;
+  container.appendChild(header);
+  
+  // Create groups container
+  const groupsContainer = document.createElement('div');
+  groupsContainer.className = 'players-group-container';
+  container.appendChild(groupsContainer);
+  
+  if (players.length === 0) {
+    const emptyMsg = document.createElement('div');
+    emptyMsg.className = 'player-detail-item';
+    emptyMsg.textContent = 'No players in this team yet';
+    groupsContainer.appendChild(emptyMsg);
+    return;
+  }
+  
+  // Group players by their role (group category)
+  const groupedPlayers = players.reduce((groups, player) => {
+    const role = player.role || 'Other';
+    if (!groups[role]) {
+      groups[role] = [];
+    }
+    groups[role].push(player);
+    return groups;
+  }, {});
+  
+  // Sort groups alphabetically
+  const sortedGroups = Object.keys(groupedPlayers).sort();
+  
+  // Create a group for each role
+  sortedGroups.forEach(role => {
+    const groupDiv = document.createElement('div');
+    groupDiv.className = 'player-group';
+    
+    // Group header
+    const header = document.createElement('div');
+    header.className = 'group-header';
+    header.innerHTML = `
+      <span>${role}</span>
+      <span>${groupedPlayers[role].length} players</span>
+    `;
+    groupDiv.appendChild(header);
+    
+    // Players list
+    const playersList = document.createElement('div');
+    playersList.className = 'group-players';
+    
+    // Sort players by price (highest first)
+    groupedPlayers[role].sort((a, b) => b.final_price - a.final_price);
+    
+    // Add each player to the group
+    groupedPlayers[role].forEach(player => {
+      const playerDiv = document.createElement('div');
+      playerDiv.className = 'player-detail-item';
+      playerDiv.innerHTML = `
+        <div class="player-detail-info">
+          <img src="${player.image}" alt="${player.name}" class="player-detail-image">
+          <span class="player-detail-name">${player.name}</span>
+        </div>
+        <span class="player-detail-price">₹${player.final_price.toLocaleString()}</span>
+      `;
+      playersList.appendChild(playerDiv);
+    });
+    
+    groupDiv.appendChild(playersList);
+    groupsContainer.appendChild(groupDiv);
+  });
+}
+
+
+function updatePlayerInDatabase(pid, team, finalPrice) {
+  fetch('/update-player/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      player_id: pid,
+      team: team,
+      final_price: finalPrice
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // After successful update, refresh the team players list
+      loadTeamPlayers(team);
+    } else {
+      console.error('Failed to update player:', data.error);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+/***********************  BID HELPERS *************************/
+
+
+
+function updateBidDisplay() {
+  document.getElementById('bidAmount').textContent = `₹${currentBid.toLocaleString()}`;
+}
+
+function reevalTeamButtons() {
+  const btns = document.querySelectorAll('#playerModal .actions .add-btn');
+  btns.forEach(btn => {
+    const team = btn.dataset.team;
+    if (teamMap[team].remain < currentBid) {
+      btn.disabled = true;
+      btn.style.opacity = 0.6;
+    } else {
+      btn.disabled = false;
+      btn.style.opacity = 1;
+    }
+  });
+}
+
+function changeBid(delta) {
+  // Track clicks
+  if (delta === 10000) {
+    tenKclicks++;
+  } else if (delta === 50000) {
+    fiftyKclicks++;
+  }
+  
+  const newBid = currentBid + delta;
+  currentBid = Math.max(minBid, newBid);
+  updateBidDisplay();
+  reevalTeamButtons();
+  updateButtonStates(); // Update button states after each click
+  
+  // Visual feedback
+  if (newBid < minBid) {
+    document.getElementById('bidAmount').style.color = '#ff6b6b';
+    setTimeout(() => {
+      document.getElementById('bidAmount').style.color = 'var(--neon)';
+    }, 500);
+  }
+}
+// *******************  MODAL *************************/
+
+
+
+function showCongrats() {
+  const effect = document.querySelector('.congrats-effect');
+  effect.style.display = 'flex';
+
+  setTimeout(() => {
+    effect.style.display = 'none';
+  }, 2000); // 2 seconds
+}
+
+function closeModal() {
+  document.getElementById('playerModal').style.display = 'none';
+  currentPlayerId = null;
+  document.body.style.overflow = 'auto'; // Re-enable body scrolling
+}
+/***********************  SELECT PLAYER *************************/
+function markPlayerAsSelected(pid, team) {
+  const thumbs = document.querySelectorAll(`.player-thumb[data-pid="${pid}"]`);
+  thumbs.forEach(thumb => {
+    thumb.classList.add('selected', 'disabled');
+    thumb.setAttribute('data-team', team);
+    
+    // Create a container for the image and overlay
+    const container = document.createElement('div');
+    container.className = 'selected-thumb-container';
+    
+    const img = document.createElement('img');
+    img.src = players[pid].img;
+    img.alt = players[pid].name;
+    
+    const overlay = document.createElement('div');
+    overlay.className = 'team-overlay';
+    overlay.textContent = getTeamShortName(team);
+    
+    container.appendChild(img);
+    container.appendChild(overlay);
+    
+    thumb.innerHTML = '';
+    thumb.appendChild(container);
+    
+    // Remove click event
+    thumb.onclick = null;
+  });
+}
+
+  // Helper function to get team abbreviation
+function getTeamShortName(team) {
+  const teamAbbr = {
+    'Cutie Pie': 'SK',
+    'Black Pink': 'BP',
+    'Pink Pandas': 'PP',
+    'Boss Babes': 'BB'
+  };
+  return teamAbbr[team] || team;
+}
+
+/***********************  CONGRATULATION EFFECT *************************/
+/***********************  CONGRATULATION EFFECT *************************/
+function showCongrats(playerName, teamName, price) {
+  const msg = `${playerName} is now a member of ${teamName} for ₹${price.toLocaleString()}`;
+  const box = document.getElementById('congratsEffect');
+  
+  // Update message
+  document.getElementById('congratsMessage').textContent = msg;
+  
+  // Show overlay
+  box.style.display = 'flex';
+  
+  // Create confetti
+  createConfetti();
+  
+  // Hide after 3 seconds
+  setTimeout(() => {
+    box.style.display = 'none';
+    // Remove all confetti
+    document.querySelectorAll('.confetti').forEach(el => el.remove());
+  }, 3000);
+}
+function playSuccessSound() {
+  const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3');
+  audio.volume = 0.3;
+  audio.play().catch(e => console.log("Audio play failed:", e));
+}
+
+function showCongrats(playerName, teamName, price) {
+  const msg = `${playerName} is now a member of ${teamName} for ₹${price.toLocaleString()}`;
+  const box = document.getElementById('congratsEffect');
+  
+  // Update message
+  document.getElementById('congratsMessage').textContent = msg;
+  
+  // Show overlay
+  box.style.display = 'flex';
+  
+  // Create confetti
+  createConfetti();
+  
+  // Hide after 3 seconds
+  setTimeout(() => {
+    box.style.display = 'none';
+    // Remove all confetti
+    document.querySelectorAll('.confetti').forEach(el => el.remove());
+  }, 3000);
+}
+function createConfetti() {
+  const colors = ['#00ffd5', '#ff00ff', '#ffff00', '#00ffff', '#ff9900', '#ff00aa', '#00ffaa', '#aa00ff'];
+  const shapes = ['circle', 'square', 'triangle'];
+  const container = document.getElementById('congratsEffect');
+  
+  // Create 150 pieces of confetti
+  for (let i = 0; i < 150; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    
+    // Random properties
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.backgroundColor = color;
+    confetti.style.left = Math.random() * 100 + 'vw';
+    confetti.style.top = -20 + 'px';
+    
+    // Random shape
+    const shape = shapes[Math.floor(Math.random() * shapes.length)];
+    if (shape === 'circle') {
+      confetti.style.borderRadius = '50%';
+      confetti.style.width = (Math.random() * 10 + 5) + 'px';
+      confetti.style.height = confetti.style.width;
+    } else if (shape === 'square') {
+      confetti.style.borderRadius = '2px';
+      confetti.style.width = (Math.random() * 12 + 6) + 'px';
+      confetti.style.height = (Math.random() * 12 + 6) + 'px';
+    } else { // triangle
+      confetti.style.width = '0';
+      confetti.style.height = '0';
+      confetti.style.backgroundColor = 'transparent';
+      confetti.style.borderLeft = '8px solid transparent';
+      confetti.style.borderRight = '8px solid transparent';
+      confetti.style.borderBottom = '15px solid ' + color;
+    }
+    
+    // Random animation duration and delay
+    const duration = Math.random() * 3 + 2;
+    const delay = Math.random() * 1.5;
+    confetti.style.animationDuration = `${duration}s`;
+    confetti.style.animationDelay = `${delay}s`;
+    
+    // Random rotation
+    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    
+    container.appendChild(confetti);
+  }
+  
+  // Play success sound
+  playSuccessSound();
+}
+
+
+function addToTeam(pid, team) {
+  const pl = players[pid];
+  const teamObj = teamMap[team];
+  
+  if (pl.team) {
+    showQuickFlash(`${pl.name} already in ${pl.team}`);
+    return;
+  }
+  
+  if (teamObj.remain < currentBid) {
+    showQuickFlash(`Insufficient funds in ${team}`);
+    return;
+  }
+  
+  // Update team funds
+  teamObj.remain -= currentBid;
+  pl.team = team;
+  pl.finalPrice = currentBid;
+  
+  // Update UI
+  document.getElementById(`remain-${teamObj.id}`).textContent = teamObj.remain.toLocaleString();
+  markPlayerAsSelected(pid, team);
+  closeModal();
+  
+  // Update database
+  updatePlayerInDatabase(pid.replace('p', ''), team, currentBid);
+  
+  // Show congratulations effect
+  showCongrats(pl.name, team, currentBid);
+  
+  // Immediately update the team players list
+  const teamId = team.replace(/\s+/g, '-').toLowerCase();
+  const playersList = document.getElementById(`players-${teamId}`);
+  
+  // Create a new player item
+  const playerDiv = document.createElement('div');
+  playerDiv.className = 'player-detail-item';
+  playerDiv.innerHTML = `
+    <div class="player-detail-info">
+      <img src="${pl.img}" alt="${pl.name}" class="player-detail-image">
+      <span class="player-detail-name">${pl.name}</span>
+    </div>
+    <span class="player-detail-price">₹${currentBid.toLocaleString()}</span>
+  `;
+  
+  // Insert after the header (or as first item if no header)
+  const header = playersList.querySelector('.player-details-header');
+  if (header) {
+    header.insertAdjacentElement('afterend', playerDiv);
+  } else {
+    playersList.prepend(playerDiv);
+  }
+  
+  // Reinitialize gallery to update all thumbnails
+  initializeGallery();
+}
+document.addEventListener('DOMContentLoaded', function() {
+   loadSavedFunds();
+  // Initialize gallery first
+  initializeGallery();
+  
+  // Set up event listeners for show-players buttons
+document.querySelectorAll('.show-players-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const team = this.dataset.team;
+    const teamId = team.replace(/\s+/g, '-').toLowerCase();
+    const playersList = document.getElementById(`players-${teamId}`);
+    
+    // Toggle display
+    if (playersList.style.display === 'none' || !playersList.style.display) {
+      playersList.style.display = 'block';
+      loadTeamPlayers(team);
+      this.textContent = 'Hide Players';
+    } else {
+      playersList.style.display = 'none';
+      this.textContent = 'Show Players';
+    }
+    saveFundsToStorage();
+  });
+});
+  updateFundsDisplay();
+});
+function saveFundsToStorage() {
+  const fundsToSave = {};
+  for (const team in teamMap) {
+    fundsToSave[team] = teamMap[team].remain;
+  }
+  localStorage.setItem('teamFunds', JSON.stringify(fundsToSave));
+}
+
+
+async function loadTeamFunds() {
+  try {
+    const response = await fetch('/get_team_funds/');
+    const funds = await response.json();
+    
+    for (const team in funds) {
+      if (teamMap[team]) {
+        teamMap[team].remain = funds[team];
+        document.getElementById(`remain-${teamMap[team].id}`).textContent = funds[team].toLocaleString();
+      }
+    }
+  } catch (error) {
+    console.error('Error loading team funds:', error);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadTeamFunds().then(() => {
+    initializeGallery();
+    // ... rest of your initialization
+  });
+});
+
+function loadTeamPlayers(team) {
+  fetch('/get-team-players/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({
+      team: team
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      displayTeamPlayers(team, data.players);
+    } else {
+      console.error('Failed to load players:', data.error);
+      // Show error message in the players list
+      const teamId = team.replace(/\s+/g, '-').toLowerCase();
+      const container = document.getElementById(`players-${teamId}`);
+      container.innerHTML = '<div class="player-detail-item">Error loading players</div>';
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+</script>
+</body>
+</html>
