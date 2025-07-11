@@ -34,4 +34,6 @@ urlpatterns = [
 
    
     path('get-team-players/', views.get_team_players, name='get_team_players'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
