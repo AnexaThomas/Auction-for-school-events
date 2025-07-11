@@ -27,3 +27,4 @@ class Player(models.Model):
 class Team(models.Model):
     name = models.CharField(max_length=100)
     remaining_funds = models.IntegerField(default=15000000)
+    image = models.ImageField(upload_to='team_images/')
